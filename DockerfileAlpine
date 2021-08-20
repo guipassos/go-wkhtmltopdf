@@ -1,0 +1,28 @@
+FROM golang:1.16 as builder
+#RUN go get -u github.com/SebastiaanKlippert/go-wkhtmltopdf
+
+WORKDIR /go/src/gowkhtmltopdf
+COPY . .
+
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o gowkhtmltopdf .
+RUN rm main.go
+#RUN rm wkhtmlpdf.dockerfile
+
+FROM alpine:3.8
+
+RUN apk add --update --no-cache \
+    libgcc libstdc++ libx11 glib libxrender libxext libintl \
+    libcrypto1.0 libssl1.0 \
+    ttf-dejavu ttf-droid ttf-freefont ttf-liberation ttf-ubuntu-font-family
+
+# on alpine static compiled patched qt headless wkhtmltopdf (47.2 MB)
+# compilation takes 4 hours on EC2 m1.large in 2016 thats why binary
+COPY wkhtmltopdf /bin
+
+# Grab the checked out source
+
+WORKDIR /root
+
+COPY --from=builder /go/src/gowkhtmltopdf .
+
+CMD ["./gowkhtmltopdf"]
