@@ -1,0 +1,39 @@
+version: "3.3"
+
+networks:
+  htmlpdf:
+    driver: bridge
+
+volumes:
+  rabbitmq-data:
+  rabbitmq-logs:
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: "htmlpdf_rabbitmq"
+    ports:
+      - 5672:5672
+      - 15672:15672
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq/
+      - rabbitmq-logs:/var/log/rabbitmq/
+    networks:
+      - htmlpdf
+
+  api:
+    build:
+      context: ./
+      dockerfile: ./docker/DockerfileUbuntu
+    image: htmlpdf/api
+    container_name: htmlpdf_api
+    restart: unless-stopped
+    ports:
+      - 5010:5010
+    environment:
+      SERVICE_NAME: api
+      SERVICE_TAGS: dev
+    #depends_on:
+    #  - rabbitmq
+    networks:
+      - htmlpdf

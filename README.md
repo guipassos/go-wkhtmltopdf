@@ -21,6 +21,11 @@ $ curl -X POST localhost:5010/v1/api/topdf -H "Content-Type: application/json" \
 
 ```bash
 
+$ docker build --no-cache -f DockerfileUbuntu --build-arg PORT=5010 \
+	-t guipassos/gowkhtmltopdf:latest .
+
+// -- or alpine
+
 $ docker build --no-cache -f DockerfileAlpine --build-arg PORT=5010 \
 	-t guipassos/gowkhtmltopdf:latest .
 
